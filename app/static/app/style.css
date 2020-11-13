@@ -1,0 +1,62 @@
+.tvdingetje {
+	padding: 60px 90px;
+	display: flex;
+	flex-direction: column;
+	background-image: url(./background.png);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 2rem 0;
+}
+.button-power {
+	border: 2px solid rgba(112,112,112,0.1);
+	padding: 6px;
+	border-radius: 50%;
+}
+
+.bi.bi-power {
+	color: rgb(112,112,112);
+}
+
+.clock {
+	font-size: 1.6rem;
+	color: rgb(112,112,112);
+}
+
+.frame-image {
+	border-radius: 15px;
+	-webkit-box-shadow: 0px 10px 20px 0px rgba(0,0,0,0.08); 
+	box-shadow: 0px 10px 20px 0px rgba(0,0,0,0.08);
+	object-fit: contain;
+	margin: 1rem;
+	background-color: white;
+	transition: all 0.4s ease;
+	margin-top: 30vh;
+}
+
+.frame-image:hover {
+	-webkit-box-shadow: 1px 10px 40px 5px rgba(0,0,0,0.2); 
+	box-shadow: 1px 10px 40px 5px rgba(0,0,0,0.2);
+	transform: scale(1.1);
+}
+
+.frame-image.spotify {
+	background-color: #221A1A;
+}
+
+.frame-image.youtube {
+	background-color: #E9403C;
+}
+
+.frame-image.snake {
+	background-color: #375A1E;
+}
+
+
+
+.content {
+	height: 450px;
+}
