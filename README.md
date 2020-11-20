@@ -5,4 +5,4 @@ to run locally
 
 installing gjanngo
 
-`pip install Django== 3.1.2`
+`pip3 install Django==3.1.2`

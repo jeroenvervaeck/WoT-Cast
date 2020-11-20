@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
-
 import urllib.parse 
 from urllib.parse import parse_qs
 
 from time import gmtime, strftime
 
+from django.conf import settings
+
+import base64
+
+import requests
 
 
 """ HOMEPAGE """
@@ -37,23 +39,53 @@ def spotifyLogin(request):
       '&redirect_uri=' + 'http://127.0.0.1:8000/spotify')
 
 def spotify(request):
-    """ 1. Ophalen van de code uit de url """
-    code = request.GET.get('code');
+    """ Ophalen van de usercode uit de url """
+    code = request.GET.get('code')
 
-    """ 2. code invullen in onderstaand commando """
-    """ 3. 'USER_ID : USER_SECRET' in een BASE64 Encoder steken en meegeven in onderstaand commazndo """
-    """ 3. Redirect url instellen op onze url """
-    """ curl -H "Authorization: Basic $BASE64-DATA=" -d grant_type=authorization_code -d code=$CODE -d redirect_uri=$URL https://accounts.spotify.com/api/token """
-   
-    """ Hiermee zullen we een object krijgen met de access token """
+    """ 'USER_ID : USER_SECRET' in een BASE64 Encoder steken """
+    client_id = settings.SPOTIFY_CLIENT_ID
+    client_secret = settings.SPOTIFY_CLIENT_SECRET
+    message = client_id + ':' + client_secret
+    message_bytes = message.encode('ascii')
+    base64_bytes = base64.b64encode(message_bytes)
+    base64_message = base64_bytes.decode('ascii')
 
-    context = {
-        'code': code 
+    """ Redirect uri instellen """
+    redirect_uri = 'http://127.0.0.1:8000/spotify'
+
+    headers = {
+        'Authorization': 'Basic ' + base64_message,
     }
-    return render(request, 'template/spotify.html', {'context': context})
 
+    data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': redirect_uri
+    }
 
+    response = requests.post('https://accounts.spotify.com/api/token', headers=headers, data=data)
 
+    if response.status_code == 200:
+        response_Json = response.json()
+        access_token = response_Json['access_token']
+        headers = { 'Authorization': 'Bearer ' + access_token }
+
+        """ tracks ophalen met een spotify api endpoint """
+        spotify_response = requests.get('https://api.spotify.com/v1/audio-features/1GOdrG8p7TBawr3rEOqT1l?si=BJFUq5waQ6aUvFO0tEIHHw', headers=headers)
+        spotify_response_Json = spotify_response.json()
+
+        # good ass documentation
+        # https://stmorse.github.io/journal/spotify-api.html
+        context = {
+            'spotify_response': spotify_response_Json
+        }
+        return render(request, 'template/spotify.html', {'context': context})
+
+    elif response.status_code == 400:
+       return render(request, 'template/index.html')
+    
+
+  
 """ YOUTUBE """
 def youtube(request):
     return HttpResponse('youtube')
@@ -64,15 +96,3 @@ def snake(request):
     return HttpResponse('snake')
 
 
-""" 
-    birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
-
-    client_credentials_manager = SpotifyClientCredentials('ff1a2ba0fcd642fbb63b304eeaf19c90', 'da1063054cfe4af19ee2ad4d21f51dc7')
-    spotify = spotipy.Spotify(client_credentials_manager)
-
-    results = spotify.artist_albums(birdy_uri, album_type='album')
-    albums = results['items']
-    while results['next']:
-        results = spotify.next(results)
-        albums.extend(results['items'])
-"""
