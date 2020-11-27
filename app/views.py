@@ -97,5 +97,6 @@ def youtube(request):
 """ SNAKE """
 def snake(request):
     return render(request, 'template/snake.html')
+    # flathub en antimicrox
 
 
