@@ -35,6 +35,8 @@
 	background-color: white;
 	transition: all 0.4s ease;
 	margin-top: 30vh;
+	max-width: 20vw;
+	max-height: 10vw;
 }
 
 .frame-image:hover {
@@ -59,4 +61,6 @@
 
 .content {
 	height: 450px;
+	display: flex;
+	justify-content: space-between;
 }

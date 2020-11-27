@@ -18,9 +18,7 @@ def index(request):
     """ Getting the Time of the day """
     showtime = strftime("%H:%M:%S", gmtime())
 
-    context = {
-        'date': showtime 
-    }
+    context = { 'date': showtime }
     return render(request, 'template/index.html', {'context': context})
 
 
@@ -98,6 +96,6 @@ def youtube(request):
 
 """ SNAKE """
 def snake(request):
-    return HttpResponse('snake')
+    return render(request, 'template/snake.html')
 
 
