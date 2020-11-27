@@ -31,10 +31,10 @@ def netflix(request):
 
 """ SPOTIFY """
 def spotifyLogin(request):
-    scopes = 'user-read-private user-read-email'
+    scopes = 'user-modify-playback-state streaming user-read-private user-read-email'
     return redirect('https://accounts.spotify.com/authorize' +
       '?response_type=code' +
-      '&client_id=' + 'ff1a2ba0fcd642fbb63b304eeaf19c90' +
+      '&client_id=' + settings.SPOTIFY_CLIENT_ID +
       '&scope=' + urllib.parse.quote(scopes) +
       '&redirect_uri=' + 'http://127.0.0.1:8000/spotify')
 
@@ -71,7 +71,12 @@ def spotify(request):
         headers = { 'Authorization': 'Bearer ' + access_token }
 
         """ tracks ophalen met een spotify api endpoint """
+        # A Track
         spotify_response = requests.get('https://api.spotify.com/v1/audio-features/1GOdrG8p7TBawr3rEOqT1l?si=BJFUq5waQ6aUvFO0tEIHHw', headers=headers)
+       
+        # An Album
+        #spotify_response = requests.get('https://api.spotify.com/v1/albums/6hQq4WpbUXuoDf3mGJR8qr/tracks', headers=headers)
+
         spotify_response_Json = spotify_response.json()
 
         # good ass documentation

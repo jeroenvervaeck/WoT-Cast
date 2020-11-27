@@ -9,9 +9,80 @@
 </head>
 <body>
 	<h1>spotifyyy</h1>
-	<p>{{ context }}</p>
+	<p>{{ context.spotify_response }}</p>
+	
+	<script src="https://sdk.scdn.co/spotify-player.js"></script>
+	<script>
+		window.onSpotifyWebPlaybackSDKReady = () => {
+			const spotify_uri = '{{ context.spotify_response.uri }}';
 
-	<!-- https://developer.spotify.com/documentation/web-playback-sdk/quick-start/#authenticating-with-spotify -->
+			// Get access token form URL parameters
+			// const queryString = window.location.search;
+			// const token = new URLSearchParams(queryString).get('code');
+
+			// this token changes every session. this is incorrect. could not find a fix
+			const token = "BQAPcw8veRSjnIgLP4-n_sR6xcIN9pCJxAsj0drV7Vt9l4xwXQw3vGUK2L_1cNY4lT8HQkFwVI4l2OjqQ_h13RH0H7ah3jRQJWfDOpiqcKQ-NcPY-1_1hXanIvqHvOOGmC4B80DOl6sEE-QlU1F0UeqqUbURAC2R5lPG";
+  			const player = new Spotify.Player({
+    			name: 'user01',
+			    getOAuthToken: cb => { cb(token); }
+			});
+
+			// Error handling
+			player.addListener('initialization_error', ({ message }) => { console.error(message); });
+			player.addListener('authentication_error', ({ message }) => { console.error(message); });
+			player.addListener('account_error', ({ message }) => { console.error(message); });
+			player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+			// Ready
+			player.addListener('ready', ({ device_id }) => {
+			  console.log('Ready with Device ID', device_id);
+			});
+
+			// Not Ready
+			player.addListener('not_ready', ({ device_id }) => {
+			  console.log('Device ID has gone offline', device_id);
+			});
+
+			// Connect to the player!
+			player.connect();
+
+			// Playing a Spotify URI
+			// https://developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
+			// https://developer.spotify.com/console/put-play/?device_id=96dd61542f3c6b22c6b4a68f438a25dc1661bc72&body=%7B%22context_uri%22%3A%22spotify%3Aalbum%3A5ht7ItJgpBH7W6vJ5BqpPr%22%2C%22offset%22%3A%7B%22position%22%3A5%7D%2C%22position_ms%22%3A0%7D
+			const play = ({
+				spotify_uri,
+				playerInstance: {
+					_options: {
+						getOAuthToken,
+						id
+					}
+				}
+			}) => {
+				getOAuthToken( access_token => {
+					fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
+						method: 'PUT',
+						body: {
+							// this cannot be hard coded. I need this from the context varibale
+							'context_uri': 'spotify:album:6hQq4WpbUXuoDf3mGJR8qr',
+							'offset': {'position': 5},
+							"position_ms": 0
+						},
+						// body: JSON.stringify({ uris: [spotify_uri] }),
+						headers: {
+							'Content-Type': 'application/json',
+        					'Authorization': `Bearer ${access_token}`
+						},
+					});
+				});
+			};
+
+			play({
+				playerInstance: player,
+				spotify_uri: 'spotify:album:6hQq4WpbUXuoDf3mGJR8qr'
+				// spotify_uri: spotify_uri
+			})
+		};
+	</script>
 </body>
 </html>
 
